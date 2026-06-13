@@ -15,9 +15,16 @@ namespace VehicleMaintenance.API.Controllers
     new Maintenance { Id = 3, Description = "Mantenimiento general", VehicleId = 103, IsActive = false }
 };
         [HttpGet] 
-        public ActionResult<IEnumerable<Maintenance>> GetAll()
+        public ActionResult<IEnumerable<MaintenanceDto>> GetAll()
         {
-            return Ok(_maintenances);
+            var maintenances = _maintenances.Select(m => new MaintenanceDto
+            {
+                Id = m.Id,
+                Description = m.Description,
+                VehicleId = m.VehicleId,
+                IsActive = m.IsActive
+            }).ToList();
+            return Ok(maintenances);
         }
 
         [HttpGet]
@@ -29,32 +36,46 @@ namespace VehicleMaintenance.API.Controllers
         }
 
         [HttpGet("{id}")] 
-        public ActionResult<Maintenance> GetById(int id)
+        public ActionResult<MaintenanceDto> GetById(int id)
         {
             var maintenance = _maintenances.FirstOrDefault(m => m.Id == id);
             if (maintenance == null)
                 return NotFound();
+            var response = new MaintenanceDto
+            {
+                Id = maintenance.Id,
+                Description = maintenance.Description,
+                VehicleId = maintenance.VehicleId,
+                IsActive = maintenance.IsActive
+            };
 
-            return Ok(maintenance);
+            return Ok(response);
         }
 
         [HttpPost] 
-        public ActionResult<Maintenance> Create(Maintenance maintenance)
+        public ActionResult<Maintenance> Create(CreateMaintenanceDto request)
         {
-            if (string.IsNullOrWhiteSpace(maintenance.Description))
+            if (string.IsNullOrWhiteSpace(request.Description))
             {
                 return BadRequest("Description of maintenance is required...");
             }
-            if (maintenance.VehicleId <= 0)
+            if (request.VehicleId <= 0)
             {
                 return BadRequest("VehicleId must be provided and positive.");
             }
-            
+            var maintenance = new Maintenance
+            {
+                Description = request.Description,
+                VehicleId = request.VehicleId,
+                IsActive = true
+            };
+
+
             int newId = _maintenances.Any() ? _maintenances.Max(m => m.Id) + 1 : 1;
             maintenance.Id = newId;
             maintenance.IsActive = true; 
             _maintenances.Add(maintenance);
-            return CreatedAtAction(nameof(GetById), new { id = maintenance.Id }, maintenance);
+            return CreatedAtAction(nameof(GetById), new { id = maintenance.Id }, request);
         }
 
         [HttpPut("{id}")]
