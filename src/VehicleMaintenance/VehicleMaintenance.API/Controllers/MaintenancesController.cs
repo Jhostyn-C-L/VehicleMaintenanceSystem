@@ -9,12 +9,6 @@ namespace VehicleMaintenance.API.Controllers
     [Route("api/maintenances")]
     public class MaintenancesController: ControllerBase
     {
-        //        private readonly List<Maintenance> _maintenances = new List<Maintenance>
-        //{
-        //    new Maintenance { Id = 1, Description = "Cambio de aceite", VehicleId = 101, IsActive = true },
-        //    new Maintenance { Id = 2, Description = "Revisión de frenos", VehicleId = 102, IsActive = true },
-        //    new Maintenance { Id = 3, Description = "Mantenimiento general", VehicleId = 103, IsActive = false }
-        //};
         private readonly VehicleMaintenanceDBContext _context;
         public MaintenancesController(VehicleMaintenanceDBContext context)
         {
@@ -23,14 +17,7 @@ namespace VehicleMaintenance.API.Controllers
 
         [HttpGet] 
         public ActionResult<IEnumerable<MaintenanceDto>> GetAll()
-        {/*
-            var maintenances = _maintenances.Select(m => new MaintenanceDto
-            {
-                Id = m.Id,
-                Description = m.Description,
-                VehicleId = m.VehicleId,
-                IsActive = m.IsActive
-            }).ToList();*/
+        {
             var maintenances = _context.Maintenances.Select(m => new MaintenanceDto
             {
                 Id = m.Id,
@@ -43,13 +30,7 @@ namespace VehicleMaintenance.API.Controllers
 
         [HttpGet]
         [Route("ordered")]
-        /*
-        public ActionResult<IEnumerable<Maintenance>> GetAllOrdered()
-        {
-            var maintenances = _maintenances.OrderBy(m => m.Description).ToList();
-            return Ok(maintenances);
-        }
-        */
+        
         public ActionResult<IEnumerable<MaintenanceDto>> GetAllOrdered()
         {
             var maintenances = _context.Maintenances.OrderBy(m => m.Description).Select(m => new MaintenanceDto
